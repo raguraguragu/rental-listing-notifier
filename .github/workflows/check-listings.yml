@@ -1,0 +1,41 @@
+name: Check rental listings
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: check-rental-listings
+  cancel-in-progress: false
+
+jobs:
+  check-listings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        if: ${{ vars.ATBB_SOURCE_MODE == 'browser' || vars.ATBB_SOURCE_MODE == '' }}
+        run: npx playwright install --with-deps chromium
+
+      - name: Check ATBB listings and notify LME
+        run: npm start
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ATBB_USERNAME: ${{ secrets.ATBB_USERNAME }}
+          ATBB_PASSWORD: ${{ secrets.ATBB_PASSWORD }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          ATBB_SOURCE_MODE: ${{ vars.ATBB_SOURCE_MODE || 'browser' }}
+          ATBB_FIXTURE_PATH: data/sample-listings.json

@@ -1,0 +1,371 @@
+/* ============================================================
+   共通スタイル（非エンジニアでも見やすいシンプルなデザイン）
+   ============================================================ */
+
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --text: #1a202c;
+  --muted: #718096;
+  --primary: #2b6cb0;
+  --primary-dark: #234e7d;
+  --danger: #c53030;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN",
+    "Yu Gothic", Meiryo, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+  font-size: 18px;
+  margin: 0;
+}
+.topbar .user {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+/* 左側：ホームリンク（アプリ名）＋ 現在のページ名 */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.home-link:hover {
+  color: var(--primary);
+}
+.page-title {
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 右側：メールとログアウト */
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 画面が狭いときはメールアドレスを隠してボタンを優先 */
+@media (max-width: 560px) {
+  .topbar-right .user {
+    display: none;
+  }
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+}
+
+/* --- ボタン --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+  text-decoration: none;
+  font-family: inherit;
+}
+.btn:hover {
+  background: var(--primary-dark);
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--primary);
+  border-color: var(--border);
+}
+.btn-ghost:hover {
+  background: #edf2f7;
+  color: var(--primary-dark);
+}
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+/* --- フォーム --- */
+.field {
+  margin-bottom: 16px;
+}
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.15);
+}
+
+/* --- エラー / 情報メッセージ --- */
+.error {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  background: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: var(--danger);
+  border-radius: 8px;
+  font-size: 14px;
+}
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* 一覧上部の注意書き（最終日時が更新される条件の説明） */
+.list-note {
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.list-note ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+.list-note li {
+  margin: 2px 0;
+}
+.list-note .list-note-warn {
+  margin-top: 10px;
+  font-weight: 600;
+  color: #c05621;
+}
+
+/* --- テーブル --- */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+}
+.search-box svg {
+  position: absolute;
+  left: 12px;
+  color: var(--muted);
+  pointer-events: none;
+}
+.search-box input[type="search"] {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+  font-size: 15px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+}
+.search-box input[type="search"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.15);
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th,
+td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+th {
+  color: var(--muted);
+  font-weight: 600;
+  background: #fafbfc;
+}
+td.userid {
+  font-family: "SFMono-Regular", Consolas, monospace;
+}
+tr:hover td {
+  background: #f7fafc;
+}
+
+/* --- ホームのメニューカード --- */
+.menu {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.menu a {
+  display: block;
+  padding: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: var(--text);
+}
+.menu a:hover {
+  border-color: var(--primary);
+}
+.menu .icon {
+  color: var(--primary);
+  line-height: 0;
+}
+.menu .title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 8px 0 4px;
+}
+.menu .desc {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* --- ログインページ専用 --- */
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-box {
+  width: 100%;
+  max-width: 380px;
+}
+.login-box h1 {
+  font-size: 20px;
+  margin: 0 0 4px;
+}
+
+/* --- マニュアル --- */
+.manual h2 {
+  margin-top: 32px;
+  font-size: 18px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 6px;
+}
+.manual h2:first-child {
+  margin-top: 0;
+}
+.manual ol,
+.manual ul {
+  padding-left: 22px;
+}
+.manual li {
+  margin: 6px 0;
+}
+.manual code {
+  background: #edf2f7;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 13px;
+}
+.manual .note {
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 14px 0;
+  font-size: 14px;
+}
+.manual h3 {
+  margin-top: 22px;
+  font-size: 15px;
+}
+.manual-figure {
+  margin: 14px 0;
+}
+.manual-figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.manual-figure figcaption {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted, #718096);
+}

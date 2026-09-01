@@ -1,0 +1,39 @@
+{
+    "name": "rental-listing-notifier",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "tsc --noEmit",
+        "check": "npm run build && npm test",
+        "start": "tsx src/index.ts",
+        "test": "vitest run",
+        "db:push": "tsx scripts/migrate.ts",
+        "db:reset": "tsx scripts/reset.ts",
+        "db:recompute": "tsx scripts/recompute-fingerprints.ts",
+        "storage:cleanup": "tsx scripts/cleanup-old-images.ts",
+        "supabase:login": "supabase login",
+        "supabase:link": "supabase link",
+        "supabase:deploy": "supabase functions deploy webhook-proxy --no-verify-jwt",
+        "supabase:secrets": "supabase secrets set --env-file .env.edge",
+        "supabase:secrets:list": "supabase secrets list"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.50.0",
+        "dotenv": "^16.4.7",
+        "pg": "^8.21.0",
+        "playwright": "^1.52.0",
+        "zod": "^3.25.56"
+    },
+    "devDependencies": {
+        "@types/node": "^22.15.29",
+        "@types/pg": "^8.20.0",
+        "supabase": "^2.106.0",
+        "tsx": "^4.19.4",
+        "typescript": "^5.8.3",
+        "vitest": "^3.2.0"
+    },
+    "engines": {
+        "node": ">=20"
+    }
+}

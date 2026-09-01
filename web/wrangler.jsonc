@@ -1,0 +1,14 @@
+{
+  // Cloudflare Workers（静的アセット配信）の設定。
+  // サーバーコード(main)は持たず、ビルド成果物 dist/ をそのまま配信する。
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Workers Builds のプロジェクト名（リポジトリ名）に合わせる
+  "name": "rental-listing-notifier",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    // 配信するフォルダ（Path が /web のとき web/dist を指す）
+    "directory": "./dist",
+    // SPA用フォールバック：未知のパスは index.html を返し、React Routerに任せる
+    "not_found_handling": "single-page-application"
+  }
+}
