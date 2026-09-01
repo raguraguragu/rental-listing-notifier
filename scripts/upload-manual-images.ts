@@ -22,6 +22,18 @@ const CONTENT_TYPES: Record<string, string> = {
   '.jpeg': 'image/jpeg'
 };
 
+/**
+ * Supabase Storage のキーは ASCII しか使えないため、日本語のファイル名を
+ * 変換する。ここのキー名は web/src/pages/Manual.tsx の SHOTS と一致させること。
+ */
+const NAME_MAP: Record<string, string> = {
+  '物件を検索の画面.png': 'search-properties.png',
+  '検索条件の保存とタイトルの入力.png': 'save-condition.png',
+  'LINEのユーザID確認.png': 'line-user-list.png',
+  'LINEの表示名の検索結果.png': 'line-user-search-result.png',
+  '検索条件保存のタイトル入力例.png': 'title-input-example.png'
+};
+
 const sourceDir = process.argv[2];
 if (!sourceDir) {
   console.error('画像フォルダのパスを指定してください。');
@@ -46,18 +58,24 @@ if (images.length === 0) {
 console.log(`バケット ${BUCKET} へ ${images.length} 枚をアップロードします。`);
 
 for (const name of images) {
+  const key = NAME_MAP[name];
+  if (!key) {
+    console.warn(`  スキップ: ${name} (NAME_MAP に定義がありません)`);
+    continue;
+  }
+
   const buffer = await readFile(join(sourceDir, name));
   const contentType = CONTENT_TYPES[extname(name).toLowerCase()]!;
 
   const { error } = await client.storage
     .from(BUCKET)
-    .upload(name, buffer, { contentType, upsert: true });
+    .upload(key, buffer, { contentType, upsert: true });
 
   if (error) {
     console.error(`  失敗: ${name} - ${error.message}`);
     process.exit(1);
   }
-  console.log(`  完了: ${name} (${(buffer.length / 1024).toFixed(0)} KB)`);
+  console.log(`  完了: ${name} → ${key} (${(buffer.length / 1024).toFixed(0)} KB)`);
 }
 
 console.log('\nアップロードが完了しました。');

@@ -67,12 +67,14 @@ function Shot({ src, alt }: { src: string | undefined; alt: string }) {
 }
 
 /** マニュアルで使う画像のファイル名（バケット内のパス） */
+// Supabase Storage のキーは ASCII のみ。
+// scripts/upload-manual-images.ts の NAME_MAP と一致させること。
 const SHOTS = {
-  search: "物件を検索の画面.png",
-  saveCondition: "検索条件の保存とタイトルの入力.png",
-  userList: "LINEのユーザID確認.png",
-  searchResult: "LINEの表示名の検索結果.png",
-  titleExample: "検索条件保存のタイトル入力例.png",
+  search: "search-properties.png",
+  saveCondition: "save-condition.png",
+  userList: "line-user-list.png",
+  searchResult: "line-user-search-result.png",
+  titleExample: "title-input-example.png",
 } as const;
 
 const SHOT_FILES = Object.values(SHOTS);
