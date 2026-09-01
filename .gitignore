@@ -252,3 +252,7 @@ data/
 
 # Supabase CLI がローカルに書くリンク情報
 supabase/.temp/
+
+# マニュアル画像は顧客の個人情報を含むため、リポジトリには置かない。
+# Supabase Storage の非公開バケット manual-images で管理する。
+web/public/manual/

@@ -369,3 +369,16 @@ tr:hover td {
   font-size: 13px;
   color: var(--muted, #718096);
 }
+
+/* マニュアル画像の読み込み中プレースホルダー */
+.manual-figure-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 14px;
+  background: #f8fafc;
+}

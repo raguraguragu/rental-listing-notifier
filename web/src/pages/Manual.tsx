@@ -1,23 +1,91 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { TopBar } from "../components/TopBar";
+import { supabase } from "../lib/supabase";
 
-// マニュアル内のスクリーンショット。
-// 画像ファイルは web/public/manual/ に置く（src は /manual/ から始まる）。
-function Shot({ src, alt }: { src: string; alt: string }) {
+// マニュアル画像は Supabase Storage の非公開バケットに置く。
+// web/public/ に置くと静的ファイルとして誰でも直接URLで取得できてしまい、
+// React側の認証ガードが効かないため（顧客の個人情報が写り込むので不可）。
+const MANUAL_BUCKET = "manual-images";
+// 署名付きURLの有効期限（秒）。閲覧中に切れない程度の短さにする。
+const SIGNED_URL_TTL_SECONDS = 60 * 30;
+
+/**
+ * ログイン済みユーザーとしてバケット内の全画像の署名付きURLをまとめて取得する。
+ * 未ログインの場合はRLSにより発行されないので、画像は表示されない。
+ */
+function useManualImageUrls(fileNames: string[]) {
+  const [urls, setUrls] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+
+  // fileNames は毎回同じ並びなので、結合した文字列を依存値にする
+  const key = fileNames.join("|");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      const { data, error } = await supabase.storage
+        .from(MANUAL_BUCKET)
+        .createSignedUrls(fileNames, SIGNED_URL_TTL_SECONDS);
+
+      if (cancelled) return;
+
+      if (error) {
+        setError("画像を読み込めませんでした。ログイン状態をご確認ください。");
+        return;
+      }
+
+      const next: Record<string, string> = {};
+      for (const item of data ?? []) {
+        if (item.signedUrl && item.path) next[item.path] = item.signedUrl;
+      }
+      setUrls(next);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+
+  return { urls, error };
+}
+
+// マニュアル内のスクリーンショット。src には署名付きURLが入る。
+function Shot({ src, alt }: { src: string | undefined; alt: string }) {
   return (
     <figure className="manual-figure">
-      <img src={src} alt={alt} loading="lazy" />
+      {src ? (
+        <img src={src} alt={alt} loading="lazy" />
+      ) : (
+        <div className="manual-figure-placeholder">画像を読み込み中...</div>
+      )}
       <figcaption>{alt}</figcaption>
     </figure>
   );
 }
 
+/** マニュアルで使う画像のファイル名（バケット内のパス） */
+const SHOTS = {
+  search: "物件を検索の画面.png",
+  saveCondition: "検索条件の保存とタイトルの入力.png",
+  userList: "LINEのユーザID確認.png",
+  searchResult: "LINEの表示名の検索結果.png",
+  titleExample: "検索条件保存のタイトル入力例.png",
+} as const;
+
+const SHOT_FILES = Object.values(SHOTS);
+
 export default function Manual() {
+  const { urls, error } = useManualImageUrls([...SHOT_FILES]);
+
   return (
     <>
       <TopBar title="操作マニュアル" />
       <main className="container">
         <div className="card manual">
+          {error && <div className="note">{error}</div>}
           <p>
             このマニュアルは、物件が更新されたときに自動的にLINEで通知できるようにするためのマニュアルです。
           </p>
@@ -27,7 +95,7 @@ export default function Manual() {
             <li>ATBBにログインします。</li>
             <li>物件の条件を入力して検索します。</li>
           </ol>
-          <Shot src="/manual/物件を検索の画面.png" alt="物件を検索する画面" />
+          <Shot src={urls[SHOTS.search]} alt="物件を検索する画面" />
           <div className="note">
             「<strong>地図から探す</strong>」ではなく「<strong>所在地/沿線から探す</strong>」を選んでください。
           </div>
@@ -40,10 +108,7 @@ export default function Manual() {
               このタイトルに<strong>LINEユーザーID</strong>を入れます（付け方は手順4）。
             </li>
           </ol>
-          <Shot
-            src="/manual/検索条件の保存とタイトルの入力.png"
-            alt="検索条件の保存とタイトルの入力"
-          />
+          <Shot src={urls[SHOTS.saveCondition]} alt="検索条件の保存とタイトルの入力" />
 
           <h2>3. LINEユーザーIDを調べる</h2>
           <ol>
@@ -56,8 +121,8 @@ export default function Manual() {
             </li>
             <li>目的のお客様の行が見つかったら、LINEユーザーIDを<strong>コピー</strong>します。</li>
           </ol>
-          <Shot src="/manual/LINEのユーザID確認.png" alt="LINEの表示名で検索する" />
-          <Shot src="/manual/LINEの表示名の検索結果.png" alt="LINEの表示名の検索結果" />
+          <Shot src={urls[SHOTS.userList]} alt="LINEの表示名で検索する" />
+          <Shot src={urls[SHOTS.searchResult]} alt="LINEの表示名の検索結果" />
 
           <h2>4. タイトルにLINEユーザーIDを入れる</h2>
           <p>コピーしたLINEユーザーIDを、ATBBの検索条件保存のタイトルに貼り付けます。形式は次のとおりです。</p>
@@ -68,10 +133,7 @@ export default function Manual() {
           <p>
             例: <code>U1a2b3c4d5..._山田太郎</code>
           </p>
-          <Shot
-            src="/manual/検索条件保存のタイトル入力例.png"
-            alt="検索条件保存のタイトル入力例"
-          />
+          <Shot src={urls[SHOTS.titleExample]} alt="検索条件保存のタイトル入力例" />
           <div className="note">
             この形式で保存されていて、かつそのLINEユーザーIDが
             <Link to="/users">LINEユーザー一覧</Link>に存在するお客様だけが、通知の対象になります。
