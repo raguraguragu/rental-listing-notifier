@@ -9,7 +9,8 @@ concurrency:
 
 jobs:
   check-listings:
-    runs-on: ubuntu-latest
+    # ubuntu-latest (26.04) は Playwright 未対応のため固定する
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
 
     steps:
