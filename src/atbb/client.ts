@@ -288,8 +288,20 @@ export class BrowserAtbbClient implements AtbbClient {
 const ATBB_BUSINESS_HOST = /atbb\.athome\.co\.jp/;
 
 async function loginAndNavigateToAtbb(page: Page, config: AppConfig): Promise<Page> {
-  await page.goto('https://atbb.athome.jp/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-  await page.locator("input[name='loginId']").fill(config.ATBB_USERNAME);
+  const response = await page.goto('https://atbb.athome.jp/', { waitUntil: 'domcontentloaded', timeout: 60000 });
+  const loginIdInput = page.locator("input[name='loginId']");
+  await loginIdInput.waitFor({ timeout: 30000 }).catch(async (error: unknown) => {
+    // ログインフォームが出ないとき、代わりに何が表示されているかをログに残す
+    // （CI のIPがアクセス制限されている場合など、原因の切り分けに使う）
+    const title = await page.title().catch(() => '');
+    const bodyText = await page.locator('body').innerText({ timeout: 5000 }).catch(() => '');
+    throw new Error(
+      `ログインフォームが表示されません (status=${response?.status() ?? '不明'}, url=${maskUrl(page.url())}, ` +
+        `title=${title}, body=${bodyText.replace(/\s+/g, ' ').slice(0, 300)})`,
+      { cause: error }
+    );
+  });
+  await loginIdInput.fill(config.ATBB_USERNAME);
   await page.locator("input[name='password']").fill(config.ATBB_PASSWORD);
   await page.locator("input[id='loginSubmit']").click();
   await page.waitForURL((url) => !url.href.includes('login'), { timeout: 30000 }).catch(() => { /* ok */ });

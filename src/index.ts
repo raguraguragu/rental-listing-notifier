@@ -76,18 +76,20 @@ async function main(): Promise<void> {
   const atbbClient = createAtbbClient(config);
   const lineClient = new LineMessagingClient(config.LINE_CHANNEL_ACCESS_TOKEN);
 
-  // ログイン（ブラウザ起動）も失敗時はリトライする。再試行前に中途半端な
-  // ブラウザを閉じてリソースリークを防ぐ。
-  await withRetry(
-    () => atbbClient.start(),
-    {
-      maxAttempts: 3,
-      delayMs: 10000,
-      label: 'ATBBログイン',
-      beforeRetry: () => atbbClient.close(),
-    }
-  );
   try {
+    // ログイン（ブラウザ起動）も失敗時はリトライする。再試行前に中途半端な
+    // ブラウザを閉じてリソースリークを防ぐ。最終的に失敗した場合も finally で
+    // ブラウザを閉じる（開いたままだと Node が終了せずジョブが止まり続ける）。
+    await withRetry(
+      () => atbbClient.start(),
+      {
+        maxAttempts: 3,
+        delayMs: 10000,
+        label: 'ATBBログイン',
+        beforeRetry: () => atbbClient.close(),
+      }
+    );
+
     // ATBBの保存条件から通知対象を解決する（条件名が {LINE_USER_ID}_{名前} 形式で
     // かつ LINEユーザーIDが line_users に登録されているもの）
     const conditions = await resolveConditions(atbbClient, repository);
